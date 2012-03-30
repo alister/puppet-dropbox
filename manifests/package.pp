@@ -23,24 +23,24 @@ class dropbox::package {
   }
 
   exec { 'download-dropbox-cli':
-    command => "wget -O /tmp/dropbox.py \"https://www.dropbox.com/download?dl=packages/dropbox.py\"",
+    command => 'wget -O /tmp/dropbox.py "https://www.dropbox.com/download?dl=packages/dropbox.py"',
     unless  => 'test -f /tmp/dropbox.py',
     require => User[$dropbox::config::dx_uid],
   }
   file { '/usr/local/bin/dropbox':
     source  => '/tmp/dropbox.py',
-    mode    => 755,
+    mode    => '0755',
     require => Exec['download-dropbox-cli']
   }
 
   if ($dropbox::config::user != undef and $dropbox::config::password != undef) {
     if $::lsbdistcodename == 'squeeze' {
-      apt::source { "swellpath-squeeze":
-        location    => "http://swdeb.s3.amazonaws.com",
-        release     => "squeeze",
-        repos       => "main",
-        key         => "4EF797A0",
-        key_server  => "subkeys.pgp.net",
+      apt::source { 'swellpath-squeeze':
+        location    => 'http://swdeb.s3.amazonaws.com',
+        release     => 'squeeze',
+        repos       => 'main',
+        key         => '4EF797A0',
+        key_server  => 'subkeys.pgp.net',
         include_src => false,
         before      => Package['nodejs'],
       }
@@ -63,26 +63,26 @@ class dropbox::package {
     }
 
     exec { 'authorize-dropbox-user':
-      command => "node ${dropbox::config::dx_home}/authorize.js ${dropbox::config::user} ${dropbox::config::password}",
-      user    => $dropbox::config::dx_uid,
-      group   => $dropbox::config::dx_gid,
-      cwd     => $dropbox::config::dx_home,
-      logoutput => true,
+      command     => "node ${dropbox::config::dx_home}/authorize.js ${dropbox::config::user} ${dropbox::config::password}",
+      user        => $dropbox::config::dx_uid,
+      group       => $dropbox::config::dx_gid,
+      cwd         => $dropbox::config::dx_home,
+      logoutput   => true,
       environment => ["HOME=${dropbox::config::dx_home}", "USER=${dropbox::config::dx_uid}"],
-      creates => "${dropbox::config::dx_home}/.dropbox/sigstore.dbx",
-      before  => Service['dropbox'],
-      require => [File['authorize.js'], Package['nodejs']]
+      creates     => "${dropbox::config::dx_home}/.dropbox/sigstore.dbx",
+      before      => Service['dropbox'],
+      require     => [File['authorize.js'], Package['nodejs']]
     }
   }
 
   exec { 'download-dropbox':
     command => "wget -O /tmp/dropbox.tar.gz \"http://www.dropbox.com/download/?plat=lnx.${download_arch}\"",
-    unless => "test -d ~${dropbox::config::dx_uid}/.dropbox-dist",
+    unless  => "test -d ~${dropbox::config::dx_uid}/.dropbox-dist",
     require => User[$dropbox::config::dx_uid],
   }
   exec { 'install-dropbox':
     command => "tar -zxvf /tmp/dropbox.tar.gz -C ~${dropbox::config::dx_uid}",
-    unless => "test -d ~${dropbox::config::dx_uid}/.dropbox-dist",
+    unless  => "test -d ~${dropbox::config::dx_uid}/.dropbox-dist",
     require => Exec['download-dropbox'],
   }
   file { '/tmp/dropbox.tar.gz':
@@ -94,6 +94,6 @@ class dropbox::package {
     source => "puppet:///modules/dropbox/etc/init.d/dropbox.${::operatingsystem}",
     owner  => root,
     group  => root,
-    mode   => 755,
+    mode   => '0755',
   }
 }

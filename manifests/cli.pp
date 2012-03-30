@@ -20,13 +20,13 @@ class dropbox::cli {
   }
 
   exec { 'download-dropbox-cli':
-    command => "wget -O /tmp/dropbox.py \"https://www.dropbox.com/download?dl=packages/dropbox.py\"",
+    command => 'wget -O /tmp/dropbox.py "https://www.dropbox.com/download?dl=packages/dropbox.py"',
     unless  => 'test -f /tmp/dropbox.py',
     require => User[$dropbox::config::dx_uid],
   }
   file { '/usr/local/bin/dropbox':
     source  => '/tmp/dropbox.py',
-    mode    => 755,
+    mode    => '0755',
     require => Exec['download-dropbox-cli']
   }
 

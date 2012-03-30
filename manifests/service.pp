@@ -1,6 +1,6 @@
 class dropbox::service {
   service { 'dropbox':
-    ensure  => 'running',
-    enable => 'true',
+    ensure => 'running',
+    enable => true,
   }
 }
